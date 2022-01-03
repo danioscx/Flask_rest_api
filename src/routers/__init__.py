@@ -1,9 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from sqlalchemy.exc import SQLAlchemyError
 
 from src import User, bcrypt
-from src.databases.user import db
 from src.models import UserModel
 
 view = Blueprint(
@@ -13,6 +11,8 @@ view = Blueprint(
 )
 
 model = UserModel()
+
+
 @view.route("/")
 def index():
     return "hello"
