@@ -1,8 +1,7 @@
-from src.databases import BaseModel, db
+from src.databases import db
 
 
-class User(BaseModel):
-
+class User(db.Model):
     __tablename__ = "User"
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username: str = db.Column(db.String(20), nullable=False)
