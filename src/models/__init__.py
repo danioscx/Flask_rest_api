@@ -1,18 +1,17 @@
-from sqlalchemy.exc import SQLAlchemyError
-
-from src import User, bcrypt
-from src.databases import db
+from typing import Any
 
 
-class UserModel(object):
+class BaseModel(object):
 
     @staticmethod
-    def create_user(username, email, password):
-        try:
-            db.session.add(
-                User(username=username, email=email, password=bcrypt.generate_password_hash(password).decode('utf-8'))
-            )
-            db.session.commit()
-            return True
-        except SQLAlchemyError:
-            return False
+    def object_to_list(lists: Any) -> list:
+        """
+        convert list object to list serialize
+        :param lists:
+          response from sqlalchemy query
+        :return: list
+        """
+        result = []
+        for value in lists:
+            result.append(dict(value))
+        return result

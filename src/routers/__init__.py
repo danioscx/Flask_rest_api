@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_current_user
 
 from src import User, bcrypt
-from src.models import UserModel
+from src.models.user_model import UserModel
 
 view = Blueprint(
     "view",
@@ -15,10 +15,11 @@ model = UserModel()
 
 @view.route("/")
 def index():
-    return "hello"
+    user = model.get_users()
+    return jsonify(user)
 
 
-@view.route("/signIn", methods=['POST'])
+@view.route("/signin", methods=['POST'])
 def sign_in():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
@@ -30,7 +31,7 @@ def sign_in():
         return jsonify(message="wrong email or password"), 401
 
 
-@view.route("/signUp", methods=['POST'])
+@view.route("/signup", methods=['POST'])
 def sign_up():
     if request.method == "POST":
         username = request.json["username"]
@@ -47,5 +48,6 @@ def sign_up():
 @view.route("welcome")
 @jwt_required()
 def welcome():
-    current_user = get_jwt_identity()
-    return jsonify(user=current_user), 200
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).one_or_none()
+    return jsonify(user), 200
