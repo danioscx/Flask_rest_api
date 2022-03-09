@@ -1,3 +1,6 @@
 .idea
-venv
+env
+.vscode
+*.sqlite
+__pycache__
 test/.pytest_cache
