@@ -17,6 +17,7 @@ def create_test_app():
     app.config["JWT_ERROR_MESSAGE_KEY"] = "message"
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}/db.sqlite'.format(
         os.getcwd())
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
@@ -34,6 +35,7 @@ def create_debug_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}/db.sqlite'.format(
         os.getcwd())
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
@@ -51,6 +53,7 @@ def create_release_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}/db.sqlite'.format(
         os.getcwd())
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)

@@ -4,6 +4,14 @@ import os
 
 from src.utils import db
 
+relation_table = db.Table(
+    'relation_table',
+    db.Column('favorites_id', db.Integer, db.ForeignKey(
+        'favorites.id'), primary_key=True),
+    db.Column('products_id', db.Integer, db.ForeignKey(
+        'products.id'), primary_key=True)
+)
+
 
 @dataclass
 class Users(db.Model):
@@ -16,7 +24,8 @@ class Users(db.Model):
         db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
     password: str = db.Column(db.String(130), nullable=False)
     address = db.relationship(
-        'ShippingAddress', backref='users', lazy='dynamic')
+        'ShippingAddress', backref='users', lazy='joined'
+        )
 
     def __repr__(self) -> str:
         return "Username {}".format(self.username)
@@ -34,3 +43,15 @@ class ShippingAddress(db.Model):
 
     def __repr__(self) -> str:
         return "address {}".format(self.address)
+
+
+@dataclass
+class Favorites(db.Model):
+
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product = db.relationship('Products', secondary=relation_table,
+                              lazy='dynamic', backref=db.backref('favorite', lazy=True))
+    times: db.DateTime = db.Column(
+        db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+    user_id: int = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=False)
