@@ -1,7 +1,5 @@
-.idea
+__pycache__/
 env
 .vscode
-*.sqlite
-__pycache__
-test/.pytest_cache
-**/**.sqlite
+
+**.sqlite
