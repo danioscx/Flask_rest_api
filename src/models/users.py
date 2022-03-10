@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-import os
+import uuid
 
 from src.utils import db
 
@@ -19,7 +19,7 @@ class Users(db.Model):
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email: str = db.Column(db.String(30), unique=True, nullable=False)
     username: str = db.Column(
-        db.String(10), nullable=False, default=str(os.urandom(9)))
+        db.String(10), nullable=False, default=uuid.uuid4().hex[0:10])
     date_join: db.DateTime = db.Column(
         db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
     password: str = db.Column(db.String(130), nullable=False)
