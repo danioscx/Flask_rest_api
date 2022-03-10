@@ -6,7 +6,7 @@ from src.models.users import Users
 jwt = JWTManager()
 
 @jwt.user_identity_loader
-def loader_identity(user: Users):
+def loader_identity(user):
     return user.id
 
 
@@ -31,3 +31,10 @@ def user_unauthorized(error):
 @jwt.expired_token_loader
 def user_token_expired(_jwt_header, _jwt_data):
     return jsonify(message="token is expired"), 401
+
+# TODO implement this method
+@jwt.additional_claims_loader
+def addtional_claims(identity):
+    return {
+        "aud": ""
+    }

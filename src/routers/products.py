@@ -19,14 +19,13 @@ TODO implementation all method
 @products.route("/")
 @jwt_required(optional=True)
 def get_product():
-    _products = Products.query.all()
-    return object_to_list(_products)
+    return object_to_list(Products.query.all())
 
 
 @products.route("/<int:id>")
 @jwt_required(optional=True)
 def get_product(id):
-    return jsonify(asdict(Products.query.get(id)))
+    return jsonify(asdict(Products.query.get(id).one_or_none()))
 
 
 @products.route('/add', methods=['POST'])
@@ -45,7 +44,7 @@ def add_product():
         product_images = []
         if (len(images_files) > 5):
             return jsonify({
-                'message': 'max 5 images'
+                'message': 'max 5 images per product'
             }), 409
         else:
             for images in images_files:
@@ -80,13 +79,13 @@ def delete_from_favorite():
     pass
 
 
-@products.route("/add/to/cart", methods=['PUT'])
+@products.route("/cart/add", methods=['PUT'])
 @jwt_required
 def add_to_cart():
     pass
 
 
-@products.route("/delete/from/cart", methods=['DELETE'])
+@products.route("/cart/delete", methods=['DELETE'])
 @jwt_required
 def delete_from_cart():
     pass
