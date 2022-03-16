@@ -74,7 +74,8 @@ def sign_in():
         password = request.json.get("password", None)
         user = Users.query.filter_by(email=email).one_or_none()
         if user is not None and bcrypt.check_password_hash(user.password, password):
-            access_token = create_access_token(identity=user)
+            additonal_claims = {"aud": "User"}
+            access_token = create_access_token(identity=user, additional_claims=additonal_claims)
             return jsonify({
                 'message': 'success sign in',
                 'token': access_token

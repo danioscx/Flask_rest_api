@@ -29,6 +29,7 @@ class ProductImages(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_upload: datetime = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+    primary_image: bool = db.Column(db.Boolean, nullable=False, default=False)
     image_url: str = db.Column(db.String(200), nullable=False)
     product_id: int = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
 
