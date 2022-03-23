@@ -14,8 +14,8 @@ def create_test_app():
 
     app.register_blueprint(users)
     app.register_blueprint(address)
-    app.register_blueprint(merchants)
     app.register_blueprint(products)
+    app.register_blueprint(merchants)
 
     app.config['JWT_SECRET_KEY'] = 'supper-secret'
     app.config["JWT_ERROR_MESSAGE_KEY"] = "message"

@@ -43,7 +43,6 @@ def add_product():
             for images in images_files:
                 filename = secure_filename(images.filename)
                 product_images.append(ProductImages(image_url=images.filename))
-        
 
 
 @products.route("/edit/<int:id>", methods=['PATCH'])
@@ -66,6 +65,7 @@ def delete_product(id):
         return jsonify({
             "message": "product deleted"
         }), 200
+
 
 @products.route("/favorite/add", methods=['PUT'])
 @jwt_required
@@ -98,7 +98,7 @@ def delete_from_favorite():
             return jsonify(message='product deleted from favorite'), 200
         else:
             return jsonify(message='product not found'), 404
-        
+
 
 @products.route("/favorite/get", methods=['GET'])
 @jwt_required
@@ -119,7 +119,8 @@ def add_to_cart():
         if product_id is None and quantity is None or quantity == 0:
             return jsonify(message='invalid input'), 409
         else:
-            cart = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
+            cart = Cart(user_id=user_id, product_id=product_id,
+                        quantity=quantity)
             db.session.add(cart)
             db.session.commit()
             return jsonify(message='product added to cart'), 200
@@ -151,7 +152,7 @@ def increase_quantity():
             return jsonify(message='product deleted from cart'), 200
         else:
             cart.quantity = quantity
-            db.session.commit()    
+            db.session.commit()
             return jsonify(message='product quantity updated'), 200
     else:
         return jsonify(message='product not found'), 409
