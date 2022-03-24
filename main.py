@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask
-from src.utils import db, bcrypt
+from src.utils import db, bcrypt, mail_app
 from src.utils.jwt import jwt
 from src.routers.users import users
 from src.routers.address import address
@@ -25,6 +25,7 @@ def create_test_app():
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
+    mail_app.init_app(app)
     return app
 
 
@@ -45,6 +46,7 @@ def create_debug_app():
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
+    mail_app.init_app(app)
     return app
 
 
@@ -65,6 +67,7 @@ def create_release_app():
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
+    mail_app.init_app(app)
     return app
 
 

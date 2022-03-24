@@ -149,7 +149,7 @@ def update_email():
             merchant_id = get_jwt_identity()
             merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
             if merchant is not None:
-                merchant.email = email
+                merchant.mail_app = email
                 db.session.commit()
                 return jsonify(message="merchant updated"), 200
             else:

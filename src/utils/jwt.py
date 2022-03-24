@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask_jwt_extended import JWTManager
 
-from src.models.users import Users
+from src.account import Account
 
 jwt = JWTManager()
 
@@ -14,7 +14,7 @@ def loader_identity(user):
 @jwt.user_lookup_loader
 def user_callback(_jwt_header, jwt_data):
     identity = jwt_data['sub']
-    return Users.query.filter_by(id=identity).one_or_none()
+    return Account.query.filter_by(id=identity).one_or_none()
 
 
 @jwt.user_lookup_error_loader
@@ -34,9 +34,3 @@ def user_token_expired(_jwt_header, _jwt_data):
     return jsonify(message="token is expired"), 401
 
 
-# TODO implement this method
-@jwt.additional_claims_loader
-def additional_claims(_identity):
-    return {
-        "aud": ""
-    }
