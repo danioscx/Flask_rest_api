@@ -5,11 +5,10 @@ from src.models.users import ShippingAddress, Users
 from src.utils import bcrypt, db, default_encoder
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
-
 users = Blueprint(
     "users",
     __name__,
-    url_prefix="/api/v1/user"
+    url_prefix="/api/v1/account"
 )
 
 
@@ -25,7 +24,7 @@ def me():
         user = Users.query.join(
             ShippingAddress, Users.id == ShippingAddress.user_id
         ).filter(
-            (ShippingAddress.active == True) |
+            (ShippingAddress.active is True) |
             (Users.id == user_id)
         ).one_or_none()
     if user is not None:
@@ -50,16 +49,16 @@ def sign_up():
                 })
             else:
                 db.session.add(Users(email=email, username=username,
-                               password=bcrypt.generate_password_hash(password)))
+                                     password=bcrypt.generate_password_hash(password)))
 
             db.session.commit()
             return jsonify({
-                'message': 'success created user'
+                'message': 'success created account'
             }), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({
-                'message': 'failed created user email is already usage {}'.format(e)
+                'message': 'failed created account email is already usage {}'.format(e)
             }), 409
     else:
         return jsonify({
@@ -74,8 +73,8 @@ def sign_in():
         password = request.json.get("password", None)
         user = Users.query.filter_by(email=email).one_or_none()
         if user is not None and bcrypt.check_password_hash(user.password, password):
-            additonal_claims = {"aud": "User"}
-            access_token = create_access_token(identity=user, additional_claims=additonal_claims)
+            additional_claims = {"aud": "User"}
+            access_token = create_access_token(identity=user, additional_claims=additional_claims)
             return jsonify({
                 'message': 'success sign in',
                 'token': access_token

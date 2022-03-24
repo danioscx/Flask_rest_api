@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from flask import Blueprint, jsonify, request
 
-from src.models.merchants import Merchants, OpenTime
+from src.merchant.models.merchant import Merchant, OpenTime
 from src.utils import db, bcrypt
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
 
@@ -21,8 +21,8 @@ def signup():
         phone_number = request.json.get("phone_number", None)
         password = request.json.get("password", None)
         if name is not None and email is not None and username is not None and address is not None and phone_number is not None and password is not None:
-            merchant = Merchants(name=name, email=email, username=username,
-                                 address=address, phone_number=phone_number, password=password)
+            merchant = Merchant(name=name, email=email, username=username,
+                                address=address, phone_number=phone_number, password=password)
             db.session.add(merchant)
             db.session.commit()
             return jsonify(message="merchant created"), 201
@@ -39,10 +39,10 @@ def signin():
         phone_number = request.json.get("phone_number", None)
         password = request.json.get("password", None)
         if email is None:
-            merchant = Merchants.query.filter_by(
+            merchant = Merchant.query.filter_by(
                 phone_number=phone_number).one_or_none()
         else:
-            merchant = Merchants.query.filter_by(email=email).one_or_none()
+            merchant = Merchant.query.filter_by(email=email).one_or_none()
         if merchant is not None and bcrypt.check_password_hash(merchant.password, password):
             addtional_claims = {"aud": "Merchant"}
             access_token = create_access_token(
@@ -53,13 +53,13 @@ def signin():
 
 
 @merchants.route("/whoami", methods=["GET"])
-@jwt_required
+@jwt_required()
 def whoami():
     if request.method != "GET":
         return jsonify(message="invalid method"), 503
     else:
         merchant_id = get_jwt_identity()
-        merchant = Merchants.query.filter_by(id=merchant_id).one_or_none()
+        merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
         if merchant is not None:
             return jsonify(asdict(merchant)), 200
         else:
@@ -67,7 +67,7 @@ def whoami():
 
 
 @merchants.route("/general/update", methods=["PATCH"])
-@jwt_required
+@jwt_required()
 def update_address():
     audience = get_jwt()
     if request.method != "PATCH":
@@ -76,7 +76,7 @@ def update_address():
         return jsonify(message="unauthorized"), 403
     else:
         merchant_id = get_jwt_identity()
-        merchant = Merchants.query.filter_by(id=merchant_id).one_or_none()
+        merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
         name = request.json.get("name", None)
         address = request.json.get("address", None)
         username = request.json.get("username", None)
@@ -91,7 +91,7 @@ def update_address():
 
 
 @merchants.route("/update/phone", methods=["PATCH"])
-@jwt_required
+@jwt_required()
 def update_phone_number():
     audience = get_jwt()
     if request.method != "PATCH":
@@ -100,7 +100,7 @@ def update_phone_number():
         return jsonify(message="unauthorized"), 403
     else:
         merchant_id = get_jwt_identity()
-        merchant = Merchants.query.filter_by(id=merchant_id).one_or_none()
+        merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
         phone_number = request.json.get("phone_number", None)
         if merchant is not None:
             merchant.phone_number = phone_number if phone_number is not None else merchant.phone_number
@@ -111,12 +111,12 @@ def update_phone_number():
 
 
 @merchants.route("/update/password", methods=["PATCH"])
-@jwt_required
+@jwt_required()
 def update_password():
-    audince = get_jwt()
+    audience = get_jwt()
     if request.method != 'PATCH':
         return jsonify(message="invalid method"), 503
-    elif audince["aud"] != "Merchant":
+    elif audience["aud"] != "Merchant":
         return jsonify(message="unauthorized"), 403
     else:
         password = request.json.get("password", None)
@@ -124,7 +124,7 @@ def update_password():
             return jsonify(message="missing fields"), 409
         else:
             merchant_id = get_jwt_identity()
-            merchant = Merchants.query.filter_by(id=merchant_id).one_or_none()
+            merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
             if merchant is not None:
                 merchant.password = bcrypt.generate_password_hash(password)
                 db.session.commit()
@@ -134,7 +134,7 @@ def update_password():
 
 
 @merchants.route("/update/email", methods=["PATCH"])
-@jwt_required
+@jwt_required()
 def update_email():
     audience = get_jwt()
     if request.method != "PATCH":
@@ -147,7 +147,7 @@ def update_email():
             return jsonify(message="missing fields"), 409
         else:
             merchant_id = get_jwt_identity()
-            merchant = Merchants.query.filter_by(id=merchant_id).one_or_none()
+            merchant = Merchant.query.filter_by(id=merchant_id).one_or_none()
             if merchant is not None:
                 merchant.email = email
                 db.session.commit()
@@ -157,7 +157,7 @@ def update_email():
 
 
 @merchants.route("/update/open-time", methods=["PATCH"])
-@jwt_required
+@jwt_required()
 def update_open_time():
     audience = get_jwt()
     if request.method != "PATCH":

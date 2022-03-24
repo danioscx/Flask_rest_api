@@ -1,13 +1,12 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import product
 from src.utils import db
 from src.models.users import relation_table
 
+
 @dataclass
 class Products(db.Model):
-
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name: str = db.Column(db.String(90), nullable=False)
     stock: int = db.Column(db.Integer, nullable=False)
@@ -17,8 +16,8 @@ class Products(db.Model):
     description: str = db.Column(db.String(1000), nullable=False)
     merchant_id: int = db.Column(db.Integer, db.ForeignKey("merchants.id"), nullable=False)
     product_images = db.relationship('ProductImages', backref=db.backref('products', lazy='joined'), lazy='select')
-    product_views = db.relationship('ProductView', backref=db.backref('products', lazy='dynamic'), lazy=True)
-    product_rating = db.relationship('ProductRating', backref=db.backref('products', lazy='joined'), lazy=True)
+    product_views = db.relationship('ProductView', backref=db.backref('products', lazy='joined'), lazy=True)
+    product_rating = db.relationship('RatingProduct', backref=db.backref('products', lazy='joined'), lazy=True)
 
     def __repr__(self) -> str:
         return "name {}".format(self.name)
@@ -26,7 +25,6 @@ class Products(db.Model):
 
 @dataclass
 class ProductImages(db.Model):
-
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_upload: datetime = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
     primary_image: bool = db.Column(db.Boolean, nullable=False, default=False)
@@ -36,35 +34,30 @@ class ProductImages(db.Model):
     def __repr__(self) -> str:
         return "image {}".format(self.image_url)
 
-    
 
 @dataclass
 class ProductView(db.Model):
-
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     views: int = db.Column(db.Integer, nullable=False, default=0)
     click: int = db.Column(db.Integer, nullable=False, default=0)
     times: datetime = db.Column(db.DateTime, nullable=False, default=datetime.now)
     product_id: int = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
 
-
     def __repr__(self) -> str:
         return "total view {}".format(self.views)
-    
+
 
 @dataclass
 class Cart(db.Model):
-    
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id: int = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     product_id: int = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity: int = db.Column(db.Integer, nullable=False)
-    
-    
+
+
 @dataclass
 class RatingProduct(db.Model):
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id: int = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     product_id: int = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     date_review: datetime = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    

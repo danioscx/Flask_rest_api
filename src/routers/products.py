@@ -16,15 +16,15 @@ products = Blueprint(
 
 
 @products.route("/<int:id>", methods=["GET"])
-def get_product(id):
-    if (id is None):
+def get_product(ids):
+    if ids is None:
         return object_to_list(Products.query.all())
     else:
-        return jsonify(asdict(Products.query.get(id).one_or_none()))
+        return jsonify(asdict(Products.query.get(ids).one_or_none()))
 
 
 @products.route('/add', methods=['POST'])
-@jwt_required
+@jwt_required()
 def add_product():
     if request.method != 'POST':
         return jsonify(message='invalid method'), 503
@@ -35,7 +35,7 @@ def add_product():
         description = request.json.get("description", None)
         images_files = request.files.getlist('images')
         product_images = []
-        if (len(images_files) > 5):
+        if len(images_files) > 5:
             return jsonify({
                 'message': 'max 5 images per product'
             }), 409
@@ -46,15 +46,15 @@ def add_product():
 
 
 @products.route("/edit/<int:id>", methods=['PATCH'])
-@jwt_required
+@jwt_required()
 def edit_product(id):
     pass
 
 
 @products.route("/delete/<int:id>", methods=['DELETE'])
-@jwt_required
-def delete_product(id):
-    product_id = Products.query.get(id).one_or_none()
+@jwt_required()
+def delete_product(ids):
+    product_id = Products.query.get(ids).one_or_none()
     if product_id is None:
         return jsonify({
             "message": "product not found"
@@ -68,7 +68,7 @@ def delete_product(id):
 
 
 @products.route("/favorite/add", methods=['PUT'])
-@jwt_required
+@jwt_required()
 def add_to_favorite():
     if request.method != 'PUT':
         return jsonify(message='invalid method'), 503
@@ -85,7 +85,7 @@ def add_to_favorite():
 
 
 @products.route("/favorite/delete", methods=['DELETE'])
-@jwt_required
+@jwt_required()
 def delete_from_favorite():
     if request.method != 'DELETE':
         return jsonify(message='invalid method'), 503
@@ -101,14 +101,14 @@ def delete_from_favorite():
 
 
 @products.route("/favorite/get", methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_favorites():
     user_id = get_jwt_identity()
     return object_to_list(Favorites.query.filter_by(user_id=user_id).all())
 
 
 @products.route("/cart/add", methods=['PUT'])
-@jwt_required
+@jwt_required()
 def add_to_cart():
     if request.method != 'PUT':
         return jsonify(message='invalid method'), 503
@@ -127,7 +127,7 @@ def add_to_cart():
 
 
 @products.route("/cart/delete", methods=['DELETE'])
-@jwt_required
+@jwt_required()
 def delete_from_cart():
     cart_id = request.json.get("cart_id", None)
     cart = Cart.query.get(cart_id).one_or_none()
@@ -140,7 +140,7 @@ def delete_from_cart():
 
 
 @products.route("/cart/quantity", methods=['PATCH'])
-@jwt_required
+@jwt_required()
 def increase_quantity():
     cart_id = request.json.get("cart_id", None)
     quantity = request.json.get("quantity", None)
@@ -159,7 +159,7 @@ def increase_quantity():
 
 
 @products.route("/cart/get")
-@jwt_required
+@jwt_required()
 def get_cart():
     user_id = get_jwt_identity()
     return object_to_list(Cart.query.filter_by(user_id=user_id).all())

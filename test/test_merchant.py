@@ -2,7 +2,7 @@ from base_test import BaseTest
 
 
 class MerchantTests(BaseTest):
-    
+
     def test_signup(self):
         response = self.app.test_client().post(
             "/api/v1/merchants/signup",
@@ -15,6 +15,5 @@ class MerchantTests(BaseTest):
                 "password": "12345"
             }
         )
-        
+
         self.assertEqual(response.status_code, 201)
-        pass
