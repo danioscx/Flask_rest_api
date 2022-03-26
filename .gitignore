@@ -4,3 +4,4 @@ venv
 .vscode
 .idea
 **/**.sqlite
+test.py

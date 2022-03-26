@@ -21,7 +21,6 @@ def check_password(account, password) -> bool:
     """
     :param account: :class:~`src.account.model.Account`
     :param password: string
-    :return: bool
-    if password is correct, return ``True`` else ``False``
+    :return: bool if password is correct, return ``True`` else ``False``
     """
     return bcrypt.check_password_hash(account.password, password)

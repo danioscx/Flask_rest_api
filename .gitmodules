@@ -1,0 +1,3 @@
+[submodule "fams"]
+	path = fams
+	url = https://github.com/danioscx/flask-fams.git
