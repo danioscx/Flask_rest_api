@@ -1,6 +1,8 @@
 import os
 
 from flask import Flask
+
+from src.account import account
 from src.utils import db, bcrypt, mail_app
 from src.utils.jwt import jwt
 from src.routers.users import users
@@ -16,6 +18,7 @@ def create_test_app():
     app.register_blueprint(address)
     app.register_blueprint(products)
     app.register_blueprint(merchants)
+    app.register_blueprint(account)
 
     app.config['JWT_SECRET_KEY'] = 'supper-secret'
     app.config["JWT_ERROR_MESSAGE_KEY"] = "message"

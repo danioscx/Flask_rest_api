@@ -14,7 +14,7 @@ class Products(db.Model):
     date_created: datetime = db.Column(db.DateTime, nullable=False, default=datetime.now)
     date_updated: datetime = db.Column(db.DateTime, nullable=True)
     description: str = db.Column(db.String(1000), nullable=False)
-    merchant_id: int = db.Column(db.Integer, db.ForeignKey("merchants.id"), nullable=False)
+    merchant_id: int = db.Column(db.Integer, db.ForeignKey("merchant.id"), nullable=False)
     product_images = db.relationship('ProductImages', backref=db.backref('products', lazy='joined'), lazy='select')
     product_views = db.relationship('ProductView', backref=db.backref('products', lazy='joined'), lazy=True)
     product_rating = db.relationship('RatingProduct', backref=db.backref('products', lazy='joined'), lazy=True)

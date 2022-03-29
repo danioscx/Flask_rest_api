@@ -1,15 +1,15 @@
 import os
-from dataclasses import asdict
+from datetime import datetime
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Message
 
-from src.account.models.account import Account
-from src.account.services.account_services import get_user
+from src.account.services import get_user_by_id, get_user_by_username, \
+    get_user_by_email, create_user, check_password, get_user_asdict
 from src.utils import bcrypt, db, mail_app, PasswordUtils
 
-account = Blueprint('user_controller', __name__, url_prefix='/api/v1/account')
+account = Blueprint('user_controller', __name__, url_prefix='/api/v1/accounts')
 
 
 @account.route('/signin', methods=['POST'])
@@ -17,9 +17,8 @@ def signin():
     if request.method == 'POST':
         username = request.json.get('username_or_email', None)
         password = request.json.get('password', None)
-        user = Account.query.filter_by(username=username).one_or_none() or Account.query.filter_by(
-            email=username).one_or_none()
-        if user is not None and bcrypt.check_password_hash(user.password, password):
+        user = get_user_by_username(username) or get_user_by_email(username)
+        if user is not None and check_password(user, password):
             access_token = create_access_token(identity=user)
             return jsonify(message="success signin", token=access_token), 200
         else:
@@ -37,16 +36,16 @@ def signup():
         password = request.json.get('password', None)
         date_of_birth = request.json.get('date_of_birth', None)
         if name is None or username is None or email is None or password is None or date_of_birth is None:
-            return jsonify(message="missing fields"), 409
-        user = Account.query.filter_by(username=username).one_or_none() or Account.query.filter_by(
-            email=email).one_or_none()
+            return jsonify(message="missing fields"), 408
+        user = get_user_by_email(email) or get_user_by_username(username)
         if user is not None:
             return jsonify(message="account already exists"), 409
         else:
-            user = Account(username=username, email=email, password=bcrypt.generate_password_hash(password))
-            db.session.add(user)
-            db.session.commit()
-            return jsonify(message="success signup"), 201
+            create = create_user(name, email, username, password, date_of_birth)
+            if create:
+                return jsonify(message="success signup"), 201
+            else:
+                return jsonify(message="failed to create account {}".format(create)), 409
     else:
         return jsonify(message="method not allowed"), 503
 
@@ -54,13 +53,8 @@ def signup():
 @account.route('/profile', methods=['GET'])
 @jwt_required()
 def profile():
-    if request.method == 'GET':
-        user_id = get_jwt_identity()
-        user = Account.query.filter_by(id=user_id).one_or_none()
-        if user is not None:
-            return jsonify(asdict(user)), 200
-        else:
-            return jsonify(message="account not found"), 404
+    user_id = get_jwt_identity()
+    return jsonify(get_user_asdict(user_id)), 200
 
 
 @account.route('/settings', methods=['PATCH', 'POST'])
@@ -68,7 +62,7 @@ def profile():
 def setting():
     if request.method == 'PATCH' or request.method == 'POST':
         user_id = get_jwt_identity()
-        user = Account.query.filter_by(id=user_id).one_or_none()
+        user = get_user_by_id(user_id)
         if user is not None:
             name = request.json.get('name', None)
             email = request.json.get('email', None)
@@ -84,7 +78,7 @@ def setting():
             if phone_number is not None:
                 user.phone_number = phone_number
             if date_of_birth is not None:
-                user.date_of_birth = date_of_birth
+                user.date_of_birth = datetime.strptime(date_of_birth, '%d/%m/%Y')
             db.session.commit()
             return jsonify(message="success update"), 200
         else:
@@ -101,7 +95,7 @@ password_utils = PasswordUtils()
 def update_password():
     if request.method == 'PATCH':
         user_id = get_jwt_identity()
-        user = Account.query.filter_by(id=user_id).one_or_none()
+        user = get_user_by_id(user_id)
         if user is not None:
             current_password = request.json.get('current_password', None)
             new_password = request.json.get('password', None)
@@ -113,7 +107,7 @@ def update_password():
                     password_utils.set_code_generator(6)
                     message = Message(
                         subject="Request to change password",
-                        recipients=user.mail_app,
+                        recipients=user.email,
                         sender=os.environ.get('DEFAULT_MAIL_SENDER', None),
                         body="Please do not give this code to anyone else. {}".format(
                             password_utils.get_code_generator())
@@ -138,7 +132,7 @@ def verify_password():
     """
     if request.method == 'POST':  # check if the request is post
         user_id = get_jwt_identity()
-        user = get_user(user_id)
+        user = get_user_by_id(user_id)
         if user is not None:
             code = request.json.get('code', None)
             if code is not None and code == password_utils.get_code_generator():

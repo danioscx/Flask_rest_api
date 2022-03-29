@@ -25,7 +25,7 @@ class Merchant(db.Model):
 class OpenTime(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    merchant_id: int = db.Column(db.Integer, db.ForeignKey('merchants.id'), nullable=False)
+    merchant_id: int = db.Column(db.Integer, db.ForeignKey('merchant.id'), nullable=False)
     day: str = db.Column(db.String(10), nullable=False)
     is_open: bool = db.Column(db.Boolean, nullable=False, default=False)
     start_time: datetime = db.Column(db.DateTime, nullable=False)
